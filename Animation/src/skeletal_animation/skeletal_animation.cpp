@@ -10,7 +10,7 @@
 #include <learnopengl/camera.h>
 #include <learnopengl/animator.h>
 #include <learnopengl/model_animation.h>
-
+#include <learnopengl/humanoid_utils.h>
 
 
 #include <iostream>
@@ -89,8 +89,9 @@ int main()
 	// -----------
 	Model ourModel(FileSystem::getPath("resources/objects/vampire/dancing_vampire.dae"));
 	Animation danceAnimation(FileSystem::getPath("resources/objects/vampire/dancing_vampire.dae"),&ourModel);
+	//HumanoidHelp humanoidHelp(danceAnimation.GetBones(),danceAnimation.GetNodeDatas(), danceAnimation.GetRootNodePtr());
+	//Animator animator(&danceAnimation, &humanoidHelp);
 	Animator animator(&danceAnimation);
-
 
 	// draw in wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

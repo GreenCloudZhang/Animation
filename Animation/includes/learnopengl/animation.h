@@ -15,6 +15,7 @@ struct AssimpNodeData
 	std::string name;
 	int childrenCount;
 	std::vector<AssimpNodeData> children;
+	int boneIndex;
 };
 
 class Animation
@@ -52,6 +53,23 @@ public:
 		else return &(*iter);
 	}
 
+	int FindBoneIndex(const std::string& name)
+	{
+		auto iter = std::find_if(m_Bones.begin(), m_Bones.end(),
+			[&](const Bone& Bone)
+			{
+				return Bone.GetBoneName() == name;
+			}
+		);
+		if (iter == m_Bones.end()) return -1;
+		else return iter - m_Bones.begin();
+	}
+
+	std::vector<Bone>& GetBones() { return m_Bones; }
+
+	std::vector<AssimpNodeData*>& GetNodeDatas() { return mNodeDatas; }
+
+	AssimpNodeData* GetRootNodePtr() { return &m_RootNode; }
 	
 	inline float GetTicksPerSecond() { return m_TicksPerSecond; }
 	inline float GetDuration() { return m_Duration;}
@@ -62,6 +80,19 @@ public:
 	}
 
 private:
+	AssimpNodeData* FindNodeWithName(AssimpNodeData& node, std::string name)
+	{
+		if (node.name == name)
+		{
+			return &node;
+		}
+		for (int i = 0; i < node.childrenCount; i++)
+		{
+			FindNodeWithName(node.children[i], name);
+		}
+	}
+
+	//ANIMATION missing bones add to model's bonemap
 	void ReadMissingBones(const aiAnimation* animation, Model& model)
 	{
 		int size = animation->mNumChannels;
@@ -70,6 +101,7 @@ private:
 		int& boneCount = model.GetBoneCount(); //getting the m_BoneCounter from Model class
 
 		//reading channels(bones engaged in an animation and their keyframes)
+		mNodeDatas.resize(size);
 		for (int i = 0; i < size; i++)
 		{
 			auto channel = animation->mChannels[i];
@@ -82,8 +114,9 @@ private:
 			}
 			m_Bones.push_back(Bone(channel->mNodeName.data,
 				boneInfoMap[channel->mNodeName.data].id, channel));
+			//auto& temp= FindNodeWithName(m_RootNode, boneName);
+			mNodeDatas[i] = FindNodeWithName(m_RootNode, boneName);
 		}
-
 		m_BoneInfoMap = boneInfoMap;
 	}
 
@@ -105,7 +138,8 @@ private:
 	float m_Duration;
 	int m_TicksPerSecond;
 	std::vector<Bone> m_Bones;
-	AssimpNodeData m_RootNode;
+	std::vector<AssimpNodeData*> mNodeDatas;//m_Bones related node
+	AssimpNodeData m_RootNode;//BONE HIERARCHY
 	std::map<std::string, BoneInfo> m_BoneInfoMap;
 };
 

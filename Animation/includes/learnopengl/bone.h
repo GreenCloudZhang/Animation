@@ -71,6 +71,14 @@ public:
 			m_Scales.push_back(data);
 		}
 	}
+
+	bool operator== (const Bone& rhs) const {
+		return (rhs.m_ID == this->m_ID) && (rhs.m_Name == this->m_Name) && (rhs.m_LocalTransform == this->m_LocalTransform);
+	}
+
+	bool operator!= (const Bone& rhs) const {
+		return (rhs.m_ID != this->m_ID) || (rhs.m_Name != this->m_Name) || (rhs.m_LocalTransform != this->m_LocalTransform);
+	}
 	
 	void Update(float animationTime)
 	{
